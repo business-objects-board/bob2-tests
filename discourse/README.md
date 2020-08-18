@@ -45,7 +45,7 @@ See on http://localhost.lan:80 for a running Discourse server.
 ### Import data to postgresql
 
 ```
-docker-compose exec -T postgresql psql -U postgres bitnami_application < bobbeta.pgsql
+docker-compose exec -T postgresql psql -U bn_discourse bitnami_application < bobbeta.pgsql
 ```
 
 Discourse data is in the `public` schema, and PhpBB2 in `database` schema.
@@ -53,7 +53,7 @@ Discourse data is in the `public` schema, and PhpBB2 in `database` schema.
 ### Migrate data from phpBB2 to Discourse
 
 ```
-docker-compose exec -T postgresql psql -U postgres bitnami_application < phpbb2_discourse.pgsql
+docker-compose exec -T postgresql psql -U bn_discourse bitnami_application < phpbb2_discourse.pgsql
 ```
 
 WORK IN PROGRESS
