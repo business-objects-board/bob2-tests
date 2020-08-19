@@ -56,4 +56,23 @@ Discourse data is in the `public` schema, and PhpBB2 in `database` schema.
 docker-compose exec -T postgresql psql -U bn_discourse bitnami_application < phpbb2_discourse.pgsql
 ```
 
-WORK IN PROGRESS
+This script will:
+* Create categories from categories
+* Create categories from forums
+* Create categories from sub-forums
+* Create topics from topics
+* Create posts from posts
+* Create users from users
+
+### Generate content
+
+Recreate `cooked` from `raw` (this will handle most of BBcode !)
+
+```
+docker-compose exec discourse bash
+cd /opt/bitnami/discourse
+RAILS_ENV=production bundle exec rake posts:rebake
+RAILS_ENV=production bundle exec rake posts:refresh_oneboxes
+RAILS_ENV=production bundle exec rake posts:reorder_posts
+RAILS_ENV=production bundle exec rake users:recalculate_post_counts
+```

@@ -2,7 +2,39 @@
 
 delete from categories where id>10;
 delete from topics where id> 10;
-delete  from posts where id > 20;
+delete from posts where id > 20;
+delete from users where id > 1;
+delete from user_emails where id > 1;
+delete from user_options where id > 1;
+delete from user_profiles where id > 1;
+delete from user_stats where id > 1;
+
+-- Insert users
+
+insert into users (id, username, name, active, created_at, updated_at, previous_visit_at, username_lower, trust_level, approved)
+select user_id, username, username, user_active, to_timestamp(user_regdate), to_timestamp(user_regdate), to_timestamp(user_lastvisit), lower(username), 1, true
+from "database".busobj_users
+where user_id > 1;
+
+insert into user_emails (id, user_id, email, "primary", created_at, updated_at)
+select user_id, user_id, user_email, true, to_timestamp(user_regdate), to_timestamp(user_regdate)
+from "database".busobj_users
+where user_id > 1;
+
+insert into user_options (user_id)
+select user_id
+from "database".busobj_users
+where user_id > 1;
+
+insert into user_profiles (user_id)
+select user_id
+from "database".busobj_users
+where user_id > 1;
+
+insert into user_stats (user_id, new_since)
+select user_id, to_timestamp(user_regdate)
+from "database".busobj_users
+where user_id > 1;
 
 -- Insert categories as categories
 
@@ -41,5 +73,4 @@ join database.busobj_posts_text t on p.post_id=t.post_id and p.post_edit_count=t
 -- Update stats
 
 update topics t set posts_count = (select count(id) from posts p where p.topic_id=t.id) where t.id>10;
-
 update topics t set last_posted_at = (select max(updated_at) from posts p where p.topic_id=t.id) where t.id>10;
