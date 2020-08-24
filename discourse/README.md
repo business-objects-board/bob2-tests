@@ -37,7 +37,7 @@ Rely on https://hub.docker.com/r/bitnami/discourse/
 ```
 curl -sSL https://raw.githubusercontent.com/bitnami/bitnami-docker-discourse/master/docker-compose.yml > docker-compose.yml
 
-docker-compose up -d
+docker-compose up
 ```
 
 See on http://localhost.lan:80 for a running Discourse server.
@@ -76,3 +76,55 @@ RAILS_ENV=production bundle exec rake posts:refresh_oneboxes
 RAILS_ENV=production bundle exec rake posts:reorder_posts
 RAILS_ENV=production bundle exec rake users:recalculate_post_counts
 ```
+
+## Push to test system
+
+There is a deployed test system here: 
+
+https://bob-discourse.eastus.cloudapp.azure.com
+
+
+- drop the phpbb2 export and migration script on the server
+
+```
+cd discourse/
+scp *.pgsql bob-discourse.eastus.cloudapp.azure.com:
+```
+
+- login the server and import both
+
+```
+ssh bob-discourse.eastus.cloudapp.azure.com
+sudo docker exec -i --user postgres app psql discourse < bobbeta.pgsql
+sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse.pgsql
+```
+
+- run post commands
+
+```
+sudo /var/discourse/launcher enter app
+rake posts:rebake
+...
+```
+
+- login to the postgres server? 
+
+```
+sudo docker exec -it --user postgres app psql discourse
+```
+
+- login to the dicsourse container ?
+
+```
+sudo /var/discourse/launcher enter app
+```
+
+Some commands:
+- `\l` list databases
+- `\c dbname` select a database
+- `\dt` list tables in current database
+- `\dn` list schemas in current database
+- `\d+ users` list columns in the users table
+
+## TODO
+- not the same db schema between dev box and remote box (user_id <> id on user_options for ex)
