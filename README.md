@@ -2,7 +2,7 @@
 
 ## Context
 
-Dave is maintaing the ForumTopics BOB since... a long time. He want to retire and shut down / save as read-only the actual BOB forum. Some members wants to keep BOB running, but it need to be updated.
+Dave is maintaing the [ForumTopics BOB forum](http://www.forumtopics.com/busobj/) since... a long time. He want to retire and shut down / save as read-only the actual BOB forum. Some members wants to keep BOB running, but it need to be updated. So there is a [BOB 2.0 project](http://www.forumtopics.com/busobj/viewtopic.php?t=254765)
 
 ## Actual BOB
 
@@ -16,7 +16,8 @@ Dave, 2020, aug
 
 ## BOB2 specs 
 
-TODO
+- Keep the content live
+- Upgrade/Change the software because it is too old actually
 
 ## BOB2 candidates
 
@@ -35,7 +36,7 @@ The goal of the subproject is to import existing `bobbeta.sql` file to discourse
 ## A few things
 
 - there is some docker image of discourse (https://hub.docker.com/r/bitnami/discourse/)
-- discourse rely on postgresql so it is needed to convert existing mysql sql data to postgresql
+- Discourse rely on postgresql so it is needed to convert existing `mysql` data to `postgresql`
 
 ## Process
 
@@ -60,33 +61,27 @@ docker-compose exec postgres pgloader \
 docker-compose exec postgres pg_dump -U postgres postgres > bobbeta.pgsql
 ```
 
-### Run discourse via docker
+### Run discourse via docker using bitnami image (for development purpose only)
 
 Rely on https://hub.docker.com/r/bitnami/discourse/
 
 ```
 curl -sSL https://raw.githubusercontent.com/bitnami/bitnami-docker-discourse/master/docker-compose.yml > docker-compose.yml
-
 docker-compose up
 ```
 
 See on http://localhost.lan:80 for a running Discourse server.
 
-### Import data to postgresql
+### Import and migrate data to postgresql
 
 ```
 docker-compose exec -T postgresql psql -U bn_discourse bitnami_application < bobbeta.pgsql
+docker-compose exec -T postgresql psql -U bn_discourse bitnami_application < phpbb2_discourse.pgsql
 ```
 
 Discourse data is in the `public` schema, and PhpBB2 in `database` schema.
 
-### Migrate data from phpBB2 to Discourse
-
-```
-docker-compose exec -T postgresql psql -U bn_discourse bitnami_application < phpbb2_discourse.pgsql
-```
-
-This script will:
+The `phpbb2_discourse.pgsql` script will:
 * Create categories from categories
 * Create categories from forums
 * Create categories from sub-forums
@@ -101,7 +96,7 @@ TODO
 cp emojis/* 
 ```
 
-### Generate content
+### Refresh content
 
 Recreate `cooked` from `raw` (this will handle most of BBcode !)
 
@@ -114,21 +109,17 @@ RAILS_ENV=production bundle exec rake posts:reorder_posts
 RAILS_ENV=production bundle exec rake users:recalculate_post_counts
 ```
 
-## Push to test system
+## Production deploy
 
-There is a deployed test system here: 
-
-https://bob-discourse.eastus.cloudapp.azure.com
-
+_There is a deployed test system [here](https://bob-discourse.eastus.cloudapp.azure.com)_
 
 - drop the phpbb2 export and migration script on the server
 
 ```
-cd discourse/
 scp *.pgsql bob-discourse.eastus.cloudapp.azure.com:
 ```
 
-- login the server and import both
+- login the server and import both `pgsql` files
 
 ```
 ssh bob-discourse.eastus.cloudapp.azure.com
@@ -156,5 +147,5 @@ Some postgres commands:
 - `\d+ users` list columns in the users table
 
 ## TODO
-- emoji
-- recompute some fields in the DB
+
+- FIle management
