@@ -4,6 +4,7 @@ delete from categories;
 delete from category_groups;
 delete from topics;
 delete from posts;
+delete from custom_emojis;
 delete from uploads where id>0;
 delete from post_uploads;
 delete from users where id > 1;
@@ -66,11 +67,14 @@ select forum_id+100, 3 /* Staff */, now(), now(), 1 from "database".busobj_forum
 update categories set read_restricted=true where id in
 (select forum_id+100 from "database".busobj_forums where auth_view <> 0);
 
--- Insert topics
+-- Insert topics with all stats!
 
-insert into topics (id, title, category_id, created_at, updated_at, last_post_user_id, bumped_at)
-select topic_id, topic_title, forum_id+100, to_timestamp(topic_time), to_timestamp(topic_time), -1, now() 
-from database.busobj_topics;
+insert into topics (id, title, category_id, created_at, updated_at, last_post_user_id, bumped_at, user_id, last_posted_at, "views", reply_count, posts_count )
+select t.topic_id, t.topic_title, t.forum_id+100, to_timestamp(fp.post_time), to_timestamp(lp.post_time ), 
+lp.poster_id, to_timestamp(lp.post_time), fp.poster_id, to_timestamp(lp.post_time), t.topic_views, t.topic_replies, t.topic_replies+1 
+from database.busobj_topics t
+join "database".busobj_posts fp on t.topic_first_post_id = fp.post_id 
+join "database".busobj_posts lp on t.topic_last_post_id = lp.post_id;
 
 -- Insert posts
 
@@ -125,12 +129,28 @@ update posts set raw = regexp_replace(raw, '\[/color:(\w*)\]', '', 'g');
 update posts set raw = regexp_replace(raw, '\[size=\d+:(\w*)\]', '', 'g');
 update posts set raw = regexp_replace(raw, '\[/size:(\w*)\]', '', 'g');
 
--- Insert uploads
+-- Insert emoji !
+-- we must put the gif in /uploads/default/original/1X/ folder
+
+insert into custom_emojis (id, name, upload_id, created_at, updated_at)
+select smilies_id, replace(code,':',''),  smilies_id, now(), now() 
+from "database".busobj_smilies
+where code like ':%:';
+
+insert into uploads (id, user_id, original_filename, url, created_at, updated_at, extension, filesize)
+select smilies_id, 1, smile_url, '/uploads/default/original/1X/' || smile_url, now(), now(), 'gif', 300
+from "database".busobj_smilies
+where code like ':%:';
+
+-- Insert uploads (add 100 to let 100 emoji max before)
+-- we must put the files in /uploads/default/original/1X/ folder
 
 insert into uploads (id, user_id, original_filename, filesize, url, created_at, updated_at, "extension")
-select a.attach_id, a.user_id_1, d.real_filename, d.filesize, '/uploads/default/original/1X/' || d.physical_filename, to_timestamp(d.filetime), to_timestamp(d.filetime), d."extension" from "database".busobj_attachments a
+select a.attach_id+100, a.user_id_1, d.real_filename, d.filesize, '/uploads/default/original/1X/' || d.physical_filename, to_timestamp(d.filetime), to_timestamp(d.filetime), d."extension" from "database".busobj_attachments a
 join "database".busobj_attachments_desc d on a.attach_id=d.attach_id;
 
+insert into post_uploads (id, post_id, upload_id)
+select attach_id, post_id, attach_id+100 from "database".busobj_attachments;
 
 -- Add in posts the images
 
@@ -168,9 +188,6 @@ begin
 end
 $$;
 
-insert into post_uploads (id, post_id, upload_id)
-select attach_id, post_id, attach_id from "database".busobj_attachments;
-
 -- Reset sequences
 
 select setval('users_id_seq', max(id)) from users;
@@ -180,9 +197,4 @@ select setval('topics_id_seq', max(id)) from topics;
 select setval('posts_id_seq', max(id)) from posts;
 select setval('uploads_id_seq', max(id)) from uploads;
 select setval('post_uploads_id_seq', max(id)) from post_uploads;
-
-
--- Update stats
-
-update topics t set posts_count = (select count(id) from posts p where p.topic_id=t.id);
-update topics t set last_posted_at = (select max(updated_at) from posts p where p.topic_id=t.id);
+select setval('custom_emojis_id_seq', max(id)) from custom_emojis;

@@ -64,6 +64,13 @@ This script will:
 * Create posts from posts
 * Create users from users
 
+## Push files
+
+TODO 
+```
+cp emojis/* 
+```
+
 ### Generate content
 
 Recreate `cooked` from `raw` (this will handle most of BBcode !)
@@ -106,20 +113,12 @@ sudo /var/discourse/launcher enter app
 rake posts:rebake
 ...
 ```
+### Utils
 
-- login to the postgres server? 
+- `sudo docker exec -it --user postgres app psql discourse` login to the postgres server
+- `sudo /var/discourse/launcher enter app` login to the dicsourse container 
 
-```
-sudo docker exec -it --user postgres app psql discourse
-```
-
-- login to the dicsourse container ?
-
-```
-sudo /var/discourse/launcher enter app
-```
-
-Some commands:
+Some postgres commands:
 - `\l` list databases
 - `\c dbname` select a database
 - `\dt` list tables in current database
@@ -127,4 +126,5 @@ Some commands:
 - `\d+ users` list columns in the users table
 
 ## TODO
-- not the same db schema between dev box and remote box (user_id <> id on user_options for ex)
+- emoji
+- recompute some fields in the DB
