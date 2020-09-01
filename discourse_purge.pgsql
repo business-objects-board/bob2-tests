@@ -1,0 +1,12 @@
+delete from categories;
+delete from category_groups;
+delete from topics;
+delete from posts;
+delete from custom_emojis;
+delete from uploads where id>0;
+delete from post_uploads;
+delete from users where id > 1;
+delete from user_emails where user_id > 1;
+delete from user_options where user_id > 1;
+delete from user_profiles where user_id > 1;
+delete from user_stats where user_id > 1;

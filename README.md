@@ -35,8 +35,9 @@ The goal of the subproject is to import existing `bobbeta.sql` file to discourse
 
 ## A few things
 
-- there is some docker image of discourse (https://hub.docker.com/r/bitnami/discourse/)
+- a docker test image (https://hub.docker.com/r/bitnami/discourse/)
 - Discourse rely on postgresql so it is needed to convert existing `mysql` data to `postgresql`
+- setup discourse for production usage in 30mn (https://github.com/discourse/discourse/blob/master/docs/INSTALL-cloud.md)
 
 ## Process
 
@@ -76,7 +77,8 @@ See on http://localhost.lan:80 for a running Discourse server.
 
 ```
 docker-compose exec -T postgresql psql -U bn_discourse bitnami_application < bobbeta.pgsql
-docker-compose exec -T postgresql psql -U bn_discourse bitnami_application < phpbb2_discourse.pgsql
+docker-compose exec -T postgresql psql -U bn_discourse bitnami_application < phpbb2_discourse-user.pgsql
+docker-compose exec -T postgresql psql -U bn_discourse bitnami_application < phpbb2_discourse-content.pgsql
 ```
 
 Discourse data is in the `public` schema, and PhpBB2 in `database` schema.
@@ -111,12 +113,16 @@ RAILS_ENV=production bundle exec rake users:recalculate_post_counts
 
 ## Production deploy
 
+Follow [this](https://github.com/discourse/discourse/blob/master/docs/INSTALL-cloud.md) to
+setup a production ready discourse instance.
+ 
 _There is a deployed test system [here](https://bob-discourse.eastus.cloudapp.azure.com)_
 
-- drop the phpbb2 export and migration script on the server
+- drop files on the server
 
 ```
 scp *.pgsql bob-discourse.eastus.cloudapp.azure.com:
+rsync emojis/* bob-discourse.eastus.cloudapp.azure.com:/var/discourse/shared/standalone/uploads/default/original/1X
 ```
 
 - login the server and import both `pgsql` files
@@ -124,20 +130,23 @@ scp *.pgsql bob-discourse.eastus.cloudapp.azure.com:
 ```
 ssh bob-discourse.eastus.cloudapp.azure.com
 sudo docker exec -i --user postgres app psql discourse < bobbeta.pgsql
-sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse.pgsql
+sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse-user.pgsql
+sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse-content.pgsql
 ```
 
 - run post commands
 
 ```
 sudo /var/discourse/launcher enter app
-rake posts:rebake
-...
+
+rake posts:refresh_oneboxes; \
+    rake posts:reorder_posts; \
+    rake users:recalculate_post_counts
 ```
 ### Utils
 
 - `sudo docker exec -it --user postgres app psql discourse` login to the postgres server
-- `sudo /var/discourse/launcher enter app` login to the dicsourse container 
+- `sudo /var/discourse/launcher enter app` login to the discourse container 
 
 Some postgres commands:
 - `\l` list databases
@@ -148,4 +157,5 @@ Some postgres commands:
 
 ## TODO
 
-- FIle management
+- File management for uploads/
+- Pinned topics
