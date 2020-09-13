@@ -1,0 +1,13 @@
+LOAD DATABASE
+     FROM      mysql://user:password@mysql:3306/database
+     INTO postgresql://postgres:root@localhost:5432/postgres
+
+
+  SET PostgreSQL PARAMETERS
+      maintenance_work_mem to '256MB',
+      work_mem to '64MB'
+
+ WITH include drop, create tables,
+      workers = 16, concurrency = 4,
+      multiple readers per thread, rows per range = 10000
+;

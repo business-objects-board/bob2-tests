@@ -26,7 +26,7 @@ Dave, 2020, aug
 - `flarum` still in beta.
 
 This repo is working on the `Discourse` import as it seems to be a popular and recognized forum solution today.
-`flarum` seems too young, and `phpBB3` seems to not have all the common feature we are waiting for in 2020.
+`flarum` seems too young, and `phpBB3` seems to not have all the common feature we are waiting for a forum in 2020.
 
 # Discourse import
 
@@ -46,19 +46,12 @@ The goal of the subproject is to import existing `bobbeta.sql` file to discourse
 using https://github.com/narayandreamer/mysql2pgsql-docker to generate an equivalent pgsql import file.
 
 ```
-git clone git@github.com:narayandreamer/mysql2pgsql-docker.git
-rm mysql2pgsql-docker/migrations/*
-
-cp ../*.sql mysql2pgsql-docker/migrations/
-
+git clone https://github.com/narayandreamer/mysql2pgsql-docker.git
+cp data/*.sql mysql2pgsql-docker/migrations/
+cp pg.load mysql2pgsql-docker/
 cd mysql2pgsql-docker
-
-docker-compose up -d
-
-docker-compose exec postgres pgloader \
- mysql://user:password@mysql:3306/database \
- postgresql://postgres:root@localhost:5432/postgres
-
+docker-compose up 
+docker-compose exec postgres pgloader -v pg.load
 docker-compose exec postgres pg_dump -U postgres postgres > bobbeta.pgsql
 ```
 
@@ -124,6 +117,7 @@ _There is a deployed test system [here](https://bob-discourse.eastus.cloudapp.az
 scp *.pgsql bob-discourse.eastus.cloudapp.azure.com:
 rsync emojis/* bob-discourse.eastus.cloudapp.azure.com:/var/discourse/shared/standalone/uploads/default/original/1X
 ```
+TODO other files !
 
 - login the server and import both `pgsql` files
 
@@ -158,4 +152,5 @@ Some postgres commands:
 ## TODO
 
 - File management for uploads/
-- Pinned topics
+- Handle signature
+- Handle flags!
