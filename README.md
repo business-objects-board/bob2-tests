@@ -98,10 +98,15 @@ Recreate `cooked` from `raw` (this will handle most of BBcode !)
 ```
 docker-compose exec discourse bash
 cd /opt/bitnami/discourse
-RAILS_ENV=production bundle exec rake posts:rebake
 RAILS_ENV=production bundle exec rake posts:refresh_oneboxes
 RAILS_ENV=production bundle exec rake posts:reorder_posts
 RAILS_ENV=production bundle exec rake users:recalculate_post_counts
+```
+
+It is then possible to generate the postgres discours dump: (you can remove the `database` schema first)
+
+```
+docker-compose exec postgresql pg_dump -U postgres postgres > bob_discourse.pgsql
 ```
 
 ## Production deploy
@@ -119,24 +124,14 @@ rsync emojis/* bob-discourse.eastus.cloudapp.azure.com:/var/discourse/shared/sta
 ```
 TODO other files !
 
-- login the server and import both `pgsql` files
+- login the server and import data, same as on dev
 
 ```
 ssh bob-discourse.eastus.cloudapp.azure.com
-sudo docker exec -i --user postgres app psql discourse < bobbeta.pgsql
-sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse-user.pgsql
-sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse-content.pgsql
+sudo docker exec -i --user postgres app psql discourse < bob_move.pgsql
+sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse.pgsql
 ```
 
-- run post commands
-
-```
-sudo /var/discourse/launcher enter app
-
-rake posts:refresh_oneboxes; \
-    rake posts:reorder_posts; \
-    rake users:recalculate_post_counts
-```
 ### Utils
 
 - `sudo docker exec -it --user postgres app psql discourse` login to the postgres server
@@ -148,6 +143,9 @@ Some postgres commands:
 - `\dt` list tables in current database
 - `\dn` list schemas in current database
 - `\d+ users` list columns in the users table
+
+Some discourse rake commands:
+- `rake --lists` list possible tasks
 
 ## TODO
 
