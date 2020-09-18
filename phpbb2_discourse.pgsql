@@ -170,38 +170,6 @@ delete from custom_emojis;
 delete from uploads where id>0;
 delete from post_uploads;
 
--- delete from users where id > 1;
--- delete from user_emails where user_id > 1;
--- delete from user_options where user_id > 1;
--- delete from user_profiles where user_id > 1;
--- delete from user_stats where user_id > 1;
-
--- Insert users
-
--- insert into users (id, username, name, active, created_at, updated_at, previous_visit_at, username_lower, trust_level, approved)
--- select user_id, username, username, user_active, to_timestamp(user_regdate), to_timestamp(user_regdate), to_timestamp(user_lastvisit), lower(username), 1, true
--- from "database".busobj_users
--- where user_id > 1;
-
--- insert into user_emails (id, user_id, email, "primary", created_at, updated_at)
--- select user_id, user_id, user_email, true, to_timestamp(user_regdate), to_timestamp(user_regdate)
--- from "database".busobj_users
--- where user_id > 1;
-
--- insert into user_options (user_id)
--- select user_id
--- from "database".busobj_users
--- where user_id > 1;
-
--- insert into user_profiles (user_id)
--- select user_id
--- from "database".busobj_users
--- where user_id > 1;
-
--- insert into user_stats (user_id, new_since)
--- select user_id, to_timestamp(user_regdate)
--- from "database".busobj_users
--- where user_id > 1;
 
 -- Insert categories as categories (3 categories)
 
@@ -372,6 +340,14 @@ begin
 	end loop;
 end
 $$;
+
+-- Fix html encoded in topic title
+
+update topics set title=replace(title, '&amp;','&') where title like '%&amp;%';
+update topics set fancy_title=replace(fancy_title, '&amp;','&') where fancy_title like '%&amp;%';
+
+update topics set title=replace(title, '&quot;','"') where title like '%&quot;%';
+update topics set fancy_title=replace(fancy_title, '&quot;','"') where fancy_title like '%&quot;%';
 
 -- Reset sequences
 
