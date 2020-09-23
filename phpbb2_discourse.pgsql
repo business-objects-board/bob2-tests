@@ -212,8 +212,8 @@ join "database".busobj_posts lp on t.topic_last_post_id = lp.post_id;
 
 insert into posts (id, user_id, topic_id, post_number, raw, cooked, created_at, updated_at, last_version_at, sort_order)
 select p.post_id, p.poster_id, p.topic_id, p.post_id, 
-t.post_text  || chr(10) || chr(10) || '---' || chr(10) || chr(10) || '**' || p.post_username || '**' ||
-flag(p.flag_id)  || '_(BOB member since ' || to_char(to_timestamp(p.user_join_date), 'YYYY-MM-DD')  || ')_',
+t.post_text  || chr(10) || chr(10) || '---' || chr(10) || chr(10) || '**' || p.post_username || '** ' ||
+flag(p.flag_id)  || ' _(BOB member since ' || to_char(to_timestamp(p.user_join_date), 'YYYY-MM-DD')  || ')_',
 t.post_text, to_timestamp(p.post_time), 
 case when p.post_edit_time is null then to_timestamp(p.post_time) else to_timestamp(p.post_edit_time) end, 
 case when p.post_edit_time is null then to_timestamp(p.post_time) else to_timestamp(p.post_edit_time) end, 
@@ -236,7 +236,7 @@ update posts set raw =
     '\[quote:(\w*)="([a-zA-Z0-9_ ]*)"\]', chr(10) || '[quote="\2"]' || chr(10), 'g'), 
     '\[quote:(\w*)\]', chr(10) || '[quote]' || chr(10), 'g'), 
     '\[/quote:(\w*)\]', chr(10) || '[/quote]' || chr(10), 'g'), 
-    '\[color=(#\w*):(\w*)\]', '', 'g'), 
+    '\[color=(\w*):(\w*)\]', '', 'g'), 
     '\[/color:(\w*)\]', '', 'g'), 
     '\[size=\d+:(\w*)\]', '', 'g'),
     '\[/size:(\w*)\]', '', 'g')
