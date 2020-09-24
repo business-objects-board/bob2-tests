@@ -351,6 +351,25 @@ update topics set fancy_title=replace(fancy_title, '&amp;','&') where fancy_titl
 update topics set title=replace(title, '&quot;','"') where title like '%&quot;%';
 update topics set fancy_title=replace(fancy_title, '&quot;','"') where fancy_title like '%&quot;%';
 
+-- Fix html encoded in raw [code]
+
+UPDATE posts SET raw=replace(raw, '&#91;', '['), baked_version = null WHERE position('&#91;' in raw)>0;
+UPDATE posts SET raw=replace(raw, '&#93;', ']'), baked_version = null WHERE position('&#93;' in raw)>0;
+UPDATE posts SET raw=replace(raw, '&#40;', '('), baked_version = null WHERE position('&#40;' in raw)>0;
+UPDATE posts SET raw=replace(raw, '&#41;', ')'), baked_version = null WHERE position('&#41;' in raw)>0;
+UPDATE posts SET raw=replace(raw, '&#58;', ':'), baked_version = null WHERE position('&#58;' in raw)>0;
+UPDATE posts SET raw=replace(raw, '&#123;', '{'), baked_version = null WHERE position('&#123;' in raw)>0;
+UPDATE posts SET raw=replace(raw, '&#125;', '}'), baked_version = null WHERE position('&#125;' in raw)>0;
+
+-- bullet
+UPDATE posts SET raw=replace(raw, '&#149;', '*'), baked_version = null WHERE position('&#149;' in raw)>0;
+
+
+-- html entities
+UPDATE posts SET raw=replace(raw, '&lt;', '<'), baked_version = null WHERE position('&lt;' in raw)>0;
+UPDATE posts SET raw=replace(raw, '&gt;', '>'), baked_version = null WHERE position('&gt;' in raw)>0;
+UPDATE posts SET raw=replace(raw, '&quot;', '"'), baked_version = null WHERE position('&quot;' in raw)>0;
+
 -- Reset sequences
 
 -- select setval('users_id_seq', max(id)) from users;
