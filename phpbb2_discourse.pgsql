@@ -345,11 +345,34 @@ $$;
 
 -- Fix html encoded in topic title
 
-update topics set title=replace(title, '&amp;','&') where title like '%&amp;%';
-update topics set fancy_title=replace(fancy_title, '&amp;','&') where fancy_title like '%&amp;%';
+update topics set title=replace(title, '&amp;','&'), fancy_title=replace(fancy_title, '&amp;','&')
+where position('&amp;' in title)>0;
 
-update topics set title=replace(title, '&quot;','"') where title like '%&quot;%';
-update topics set fancy_title=replace(fancy_title, '&quot;','"') where fancy_title like '%&quot;%';
+update topics set title=replace(title, '&quot;','"'), fancy_title=replace(fancy_title, '&quot;','"') 
+where position('&quot;' in title)>0;
+
+-- Strange unicode things
+
+update topics set title=replace(title, U&'â\0080\0098',''''), fancy_title=replace(fancy_title, U&'â\0080\0098','''') 
+where position(U&'â\0080\0098' in title)>0;
+
+update topics set title=replace(title, U&'â\0080¦','...'), fancy_title=replace(fancy_title, U&'â\0080¦','...') 
+where position(U&'â\0080¦' in title)>0;
+
+update topics set title=replace(title, U&'â\0080\008E',''), fancy_title=replace(fancy_title, U&'â\0080\008E','') 
+where position(U&'â\0080\008E' in title)>0;
+
+update topics set title=replace(title, U&'â\0080\009C','"'), fancy_title=replace(fancy_title, U&'â\0080\009C','"') 
+where position(U&'â\0080\009C' in title)>0;
+
+update topics set title=replace(title, U&'â\0080\009D','"'), fancy_title=replace(fancy_title, U&'â\0080\009D','"') 
+where position(U&'â\0080\009D' in title)>0;
+
+update topics set title=replace(title, U&'â\0080\0099',''''), fancy_title=replace(fancy_title, U&'â\0080\0099','''') 
+where position(U&'â\0080\0099' in title)>0;
+
+update topics set title=replace(title, U&'\0080','€'), fancy_title=replace(fancy_title, U&'\0080','€') 
+where position(U&'\0080' in title)>0;
 
 -- Fix html encoded in raw [code]
 
@@ -369,6 +392,20 @@ UPDATE posts SET raw=replace(raw, '&#149;', '*'), baked_version = null WHERE pos
 UPDATE posts SET raw=replace(raw, '&lt;', '<'), baked_version = null WHERE position('&lt;' in raw)>0;
 UPDATE posts SET raw=replace(raw, '&gt;', '>'), baked_version = null WHERE position('&gt;' in raw)>0;
 UPDATE posts SET raw=replace(raw, '&quot;', '"'), baked_version = null WHERE position('&quot;' in raw)>0;
+
+-- Strange unicode things
+
+update posts set raw=replace(raw, U&'â\0080\0098',''''), baked_version = null where position(U&'â\0080\0098' in raw)>0;
+update posts set raw=replace(raw, U&'â\0080¦','...'), baked_version = null where position(U&'â\0080¦' in raw)>0;
+update posts set raw=replace(raw, U&'â\0080\009C','"'), baked_version = null where position(U&'â\0080\009C' in raw)>0;
+update posts set raw=replace(raw, U&'â\0080\009D','"'), baked_version = null where position(U&'â\0080\009D' in raw)>0;
+update posts set raw=replace(raw, U&'â\0080\009E','"'), baked_version = null where position(U&'â\0080\009E' in raw)>0;
+update posts set raw=replace(raw, U&'â\0080\0099',''''), baked_version = null where position(U&'â\0080\0099' in raw)>0;
+update posts set raw=replace(raw, U&'â\0080\008B',''), baked_version = null where position(U&'â\0080\008B' in raw)>0;
+update posts set raw=replace(raw, U&'â\0080\0093','-'), baked_version = null where position(U&'â\0080\0093' in raw)>0;
+update posts set raw=replace(raw, U&'â\0080\0094',''), baked_version = null where position(U&'â\0080\0094' in raw)>0;
+update posts set raw=replace(raw, U&'â\0080¢','*'), baked_version = null where position(U&'â\0080¢' in raw)>0;
+update posts set raw=replace(raw, U&'\0080','€'), baked_version = null where position(U&'\0080' in raw)>0;
 
 -- Reset sequences
 
