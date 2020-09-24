@@ -129,7 +129,10 @@ TODO other files !
 ```
 ssh bob-discourse.eastus.cloudapp.azure.com
 sudo docker exec -i --user postgres app psql discourse < bob_move.pgsql
-sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse.pgsql
+sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse-user.pgsql
+sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse-cat.pgsql
+sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse-upload.pgsql
+sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse-topic.pgsql
 ```
 
 ### Utils

@@ -1,9 +1,13 @@
+-- simple script that copy phpbb2 users to discourse
+-- use same id in discourse as set in phpbb2
+-- warning remove all content before import !!
+
 -- don't delete users
--- delete from users where id > 1;
--- delete from user_emails where user_id > 1;
--- delete from user_options where user_id > 1;
--- delete from user_profiles where user_id > 1;
--- delete from user_stats where user_id > 1;
+delete from users where id > 1;
+delete from user_emails where user_id > 1;
+delete from user_options where user_id > 1;
+delete from user_profiles where user_id > 1;
+delete from user_stats where user_id > 1;
 
 -- Insert users
 
