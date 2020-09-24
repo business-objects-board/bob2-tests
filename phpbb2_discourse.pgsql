@@ -407,13 +407,17 @@ update posts set raw=replace(raw, U&'â\0080\0094',''), baked_version = null whe
 update posts set raw=replace(raw, U&'â\0080¢','*'), baked_version = null where position(U&'â\0080¢' in raw)>0;
 update posts set raw=replace(raw, U&'\0080','€'), baked_version = null where position(U&'\0080' in raw)>0;
 
+
+-- rebake all previous content
+UPDATE posts SET baked_version = null where id <= 1071383;
+
 -- Reset sequences
 
 -- select setval('users_id_seq', max(id)) from users;
 -- select setval('user_emails_id_seq', max(id)) from user_emails;
-select setval('categories_id_seq', max(id)) from categories;
+-- select setval('categories_id_seq', max(id)) from categories;
 select setval('topics_id_seq', max(id)) from topics;
 select setval('posts_id_seq', max(id)) from posts;
-select setval('uploads_id_seq', max(id)) from uploads;
+-- select setval('uploads_id_seq', max(id)) from uploads;
 select setval('post_uploads_id_seq', max(id)) from post_uploads;
-select setval('custom_emojis_id_seq', max(id)) from custom_emojis;
+-- select setval('custom_emojis_id_seq', max(id)) from custom_emojis;
