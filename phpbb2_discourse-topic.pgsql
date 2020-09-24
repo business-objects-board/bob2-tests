@@ -166,7 +166,7 @@ $$ LANGUAGE SQL STRICT IMMUTABLE;
 delete from topics where id <= 255509;
 -- 1071383 is the last post id of the bob import
 delete from posts where id <= 1071383;
-delete from post_uploads;
+delete from post_uploads where post_id <= 1071383;
 
 -- Insert topics with all stats!
 
@@ -245,6 +245,8 @@ update posts set raw =
     '\[code:\d:(\w*)\]', chr(10) || '[code]' || chr(10), 'g'),
     '\[/code:\d:(\w*)\]', chr(10) || '[/code]' || chr(10), 'g')
 where position('[' in raw)>0;
+
+-- add link between uploaded file and post
 
 insert into post_uploads (id, post_id, upload_id)
 select attach_id, post_id, attach_id+100 from "database".busobj_attachments;
@@ -335,7 +337,6 @@ UPDATE posts SET raw=replace(raw, '&#125;', '}'), baked_version = null WHERE pos
 -- bullet
 UPDATE posts SET raw=replace(raw, '&#149;', '*'), baked_version = null WHERE position('&#149;' in raw)>0;
 
-
 -- html entities
 UPDATE posts SET raw=replace(raw, '&lt;', '<'), baked_version = null WHERE position('&lt;' in raw)>0;
 UPDATE posts SET raw=replace(raw, '&gt;', '>'), baked_version = null WHERE position('&gt;' in raw)>0;
@@ -354,7 +355,6 @@ update posts set raw=replace(raw, U&'â\0080\0093','-'), baked_version = null wh
 update posts set raw=replace(raw, U&'â\0080\0094',''), baked_version = null where position(U&'â\0080\0094' in raw)>0;
 update posts set raw=replace(raw, U&'â\0080¢','*'), baked_version = null where position(U&'â\0080¢' in raw)>0;
 update posts set raw=replace(raw, U&'\0080','€'), baked_version = null where position(U&'\0080' in raw)>0;
-
 
 -- rebake all previous content
 UPDATE posts SET baked_version = null where id <= 1071383;
