@@ -135,6 +135,50 @@ sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse-upload
 sudo docker exec -i --user postgres app psql discourse < phpbb2_discourse-topic.pgsql
 ```
 
+### Modify the configuration to allow download of more files
+
+Edit the file `/var/discourse/containers/app.yml` and put at the end:
+
+```
+## Any custom commands to run after building
+run:
+  - exec: echo "Beginning of custom commands"
+  ## If you want to set the 'From' email address for your first registration, uncomment and change:
+  ## After getting the first signup email, re-comment the line. It only needs to run once.
+  #- exec: rails r "SiteSetting.notification_email='julienbras@sidoine.org'"
+  # Following task will allow to download directly xls/doc/pdf/zip files from BOB import
+  - replace:
+          filename: "/etc/nginx/conf.d/discourse.conf"
+          from: /gif\|png\|jpg/m
+          to: gif|png|jpg|doc|htm|pdf|ppt|rea|rep|txt|unv|wid|xls|zip
+  - exec: echo "End of custom commands"
+```
+
+Rebuild the container:
+
+```
+sudo /var/discourse/launcher rebuild app
+```
+
+This action will allow to download all kind of file we have on bob
+historical topics (zip xls doc...)
+
+### Add more sidekiq process
+
+Useful when the sidekiq pool is too big
+
+Edit the file `/var/discourse/containers/app.yml` and put in the `env:` section:
+
+```
+UNICORN_SIDEKIQS: 8
+```
+
+Rebuild the container:
+
+```
+sudo /var/discourse/launcher rebuild app
+```
+
 ### Utils
 
 - `sudo docker exec -it --user postgres app psql discourse` login to the postgres server
