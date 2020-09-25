@@ -193,9 +193,3 @@ Some postgres commands:
 
 Some discourse rake commands:
 - `rake --lists` list possible tasks
-
-## TODO
-
-- File management for uploads/
-- Handle signature
-- Handle flags!
